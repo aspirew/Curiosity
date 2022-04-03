@@ -10,8 +10,10 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.3",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/native": "^6.0.8",
+    "@types/react-redux": "^7.1.23",
     "babel-plugin-inline-dotenv": "^1.7.0",
     "expo": "~44.0.0",
     "expo-constants": "~13.0.1",
@@ -30,9 +32,14 @@
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
     "react-native-snackbar-component": "^1.1.12",
+    "react-native-unimodules": "^0.14.10",
     "react-native-web": "0.17.1",
     "react-navigation": "^4.4.4",
     "react-navigation-stack": "^2.10.4",
+    "react-redux": "^7.2.8",
+    "redux": "^4.1.2",
+    "redux-persist": "^6.0.0",
+    "redux-persist-expo-securestore": "^2.0.0",
     "rn-nodeify": "^10.3.0"
   },
   "devDependencies": {

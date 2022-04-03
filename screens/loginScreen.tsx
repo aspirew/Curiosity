@@ -1,37 +1,37 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword  } from 'firebase/auth';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { View, Text, Button } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
-import { auth } from '../firebase/firebase.config';
 import { globalStyles } from '../styles/global';
+import { firebaseLogin, firebaseRegister, getLocalToken } from '../services/authService';
 
-export default function LoginScreen({ navigation }: DefaultScreenProps) {
+function LoginScreen({ navigation }: DefaultScreenProps) {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   function signIn(){
-    signInWithEmailAndPassword(auth, email, password)
-    .then((res) => {
-      console.log(res.user.getIdToken)
-      navigation.navigate("RegisterScreen")
-    })
-    .catch((err) => {
-      
+    firebaseLogin(email, password).then(async () => {
+      const token = await getLocalToken()
+      if(token)
+        navigation.navigate("MapScreen")
     })
   }
 
   function register(){
-    createUserWithEmailAndPassword(auth, email, password)
-    .then((res) => {
-      navigation.navigate("MapScreen")
-    })
-    .catch((err) => { 
-      console.error(err)
+    firebaseRegister(email, password).then(async () => {
+      const token = await getLocalToken()
+      if(token)
+        navigation.navigate("MapScreen")
     })
   }
+
+  useEffect(() => {
+    getLocalToken().then((token) => {
+    if(token)
+      navigation.navigate("MapScreen")
+  })}, [])
 
   return (
     <View style={globalStyles.container}>
@@ -47,3 +47,5 @@ export default function LoginScreen({ navigation }: DefaultScreenProps) {
     </View>
   );
 }
+
+export default LoginScreen
