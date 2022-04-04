@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { auth } from '../firebase/firebase.config';
 import { AsyncStorage } from "react-native";
 import { AsyncStorageData } from "../utils/enums";
+import Toast from 'react-native-root-toast';
 
 type Error = {
     code: number,
@@ -32,6 +33,9 @@ export async function firebaseLogin(email: string, pass: string): Promise<string
         return token
     } catch(err: any){
         const error = err as Error
+        Toast.show(error.message, {
+            duration: Toast.durations.LONG,
+        });
         console.error(error.message)
         return undefined
     }
