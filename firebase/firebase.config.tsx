@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getFirestore} from 'firebase/firestore';
 
 import {REACT_APP_FIREBASE_KEY, 
         REACT_APP_FIREBASE_DOMAIN, 
@@ -10,7 +11,7 @@ import {REACT_APP_FIREBASE_KEY,
         REACT_APP_FIREBASE_MEASUREMENT_ID } from '@env'
 import { getAuth } from "firebase/auth";
 
-const firebaseApp = initializeApp({
+const firebaseConfig = {
   apiKey: REACT_APP_FIREBASE_KEY,
   authDomain: REACT_APP_FIREBASE_DOMAIN,
   databaseURL: REACT_APP_FIREBASE_DATABASE,
@@ -19,6 +20,10 @@ const firebaseApp = initializeApp({
   messagingSenderId: REACT_APP_FIREBASE_SENDER_ID,
   appId: REACT_APP_FIREBASE_APP_ID,
   measurementId: REACT_APP_FIREBASE_MEASUREMENT_ID
-})
+};
 
+const firebaseApp = initializeApp(firebaseConfig)
+
+export const db = getFirestore(firebaseApp)
 export const auth = getAuth(firebaseApp)
+
