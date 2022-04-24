@@ -13,6 +13,7 @@ const RootDrawerNavigator = createDrawerNavigator({
   Event: {
     screen: EventStack
   }
+  
 },
 {
   drawerPosition : "right"  

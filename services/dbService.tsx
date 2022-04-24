@@ -3,11 +3,17 @@ import { collection, addDoc, getDocs, QuerySnapshot, DocumentData } from "fireba
 import { GeoPoint } from 'firebase/firestore';
 
 
-export interface EventDoc {
-    id: string;
-    name: string;
-    description: string;
+export class EventDoc {
+    id: string
+    name: string
+    description: string
+
+    constructor(id: string, name: string, description: string) {
+      this.id = id;
+      this.name = name;
+      this.description = description;
   }
+}
 
 export async function addEvent(name : string, description: string){
     try {
@@ -25,12 +31,17 @@ export async function addEvent(name : string, description: string){
   }
 
 
-export async function getEvents() : Promise<QuerySnapshot<DocumentData>> {
-    const querySnapshot = await getDocs(collection(db, "events"));
-    querySnapshot.forEach((doc) => {
-    console.log(`${doc.id} => ${doc.data()}`);
-    
-})
-return querySnapshot;;
+export async function getEvents() : Promise<EventDoc[]> {
+    const events = await getDocs(collection(db, "events"));
+    let arr: EventDoc[] = [];
+    if (events.size > 0) {
+      events.forEach(doc => {
+        arr.push(new EventDoc(doc.id, doc.data().name, doc.data().description))
+      })
+    }
+    else {
+      // decide what you want to do if no results
+    }
+return arr;
     
 }

@@ -17,8 +17,12 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
 
   function Submit(){
     addEvent(name, descripton).then(async () => {
-      navigation.navigate("mapScreen")
+      navigation.navigate("EventViewScreen")
     })
+  }
+
+  function ViewEvents(){
+      navigation.navigate("EventViewScreen")
   }
 
 
@@ -33,7 +37,6 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
         />
         <Input
             placeholder='Description'
-            secureTextEntry={true}
             value={descripton}
             onChangeText={(txt: string) => setDescrition(txt)}
             style={{margin: 10}}
@@ -44,6 +47,13 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
             onPress={Submit}
         >
             Submit
+        </Button>
+
+        <Button
+            style={{marginTop: 10, marginLeft: 'auto', marginRight: 'auto', width: '50%'}}
+            onPress={ViewEvents}
+        >
+            View Events
         </Button>
     </Card>
 </Layout>
