@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
 import { firebaseLogout } from '../services/authService';
-import { globalStyles } from '../styles/global';
-
+import { SafeAreaView } from 'react-native';
+import { Button, Layout } from '@ui-kitten/components';
 
 export default function HomeScreen({ navigation }: DefaultScreenProps) {
 
@@ -16,10 +15,12 @@ export default function HomeScreen({ navigation }: DefaultScreenProps) {
   }
 
   return (
-    <View style={globalStyles.container}>
-      <Text>Home Screen</Text>
-      <Button title="start" onPress={start}/>
-      <Button title="log out" onPress={logOut}/>
-    </View>
+
+    <SafeAreaView style={{ flex: 1 }}>
+        <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Button style={{ margin: 20 }}onPress={start}>start</Button>
+            <Button onPress={logOut}>log out</Button>
+        </Layout>
+    </SafeAreaView>
   );
 }
