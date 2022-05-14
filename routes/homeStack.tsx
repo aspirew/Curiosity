@@ -3,6 +3,7 @@ import { createAppContainer } from 'react-navigation';
 import HomeScreen from '../screens/homeScreen';
 import LoginScreen from '../screens/loginScreen';
 import MapScreen from '../screens/mapScreen';
+import EventCreationScreen from '../screens/eventCreationScreen';
 
 const screens = {
   HomeScreen: {
@@ -13,6 +14,9 @@ const screens = {
   },
   MapScreen: {
     screen: MapScreen
+  },
+  EventCreationScreen : {
+    screen: EventCreationScreen
   }
 };
 
