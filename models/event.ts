@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import {EventType} from "./eventType";
 import Photo from "./photo";
 
@@ -9,4 +10,7 @@ export default class Event {
     startDate: Date
     endDate: Date
     photo: Photo
+    postTime: Timestamp 
+    stars: number
+    votes: number
 }
