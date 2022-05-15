@@ -66,16 +66,38 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
     };
   
     const submit = async () => {
+
+      try{
       const imageUrl = await uploadImageAsync(uploadedImageUrl);
+      const event = {
+        id: uuid.v4(),
+        name: name,
+        type: category,
+        description: descripton,
+        startDate: startDate,
+        endDate: endDate,
+        photo: imageUrl,
+        postTime: new Date(),
+        stars: null,
+        votes: null
+      }
       console.log('Image Url: ', imageUrl);
       console.log('Event name: ', name);
       console.log('Event type: ', category);
       console.log('Event descr: ', descripton);
       console.log('Event st date: ', startDate);
       console.log('Event end date: ', endDate);
-
-  
       
+      //TODO: input validation
+      
+      await addEvent(event);
+      navigation.navigate("MapScreen")
+      }
+      //TODO: error handling
+    catch(error: any) {
+      return error.message
+    }
+
     }
   
     const _maybeRenderUploadingOverlay = () => {

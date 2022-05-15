@@ -1,6 +1,7 @@
 import { db } from '../firebase/firebase.config';
 import { collection, addDoc, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore"; 
 import { GeoPoint } from 'firebase/firestore';
+import Event from '../models/event';
 
 
 export class EventDoc {
@@ -15,14 +16,19 @@ export class EventDoc {
   }
 }
 
-export async function addEvent(name : string, description: string){
+export async function addEvent(event: Event){
     try {
         const docRef = await addDoc(collection(db, "events"), {
-        name: name,
-       // creator: creator,
-        description: description,
-       // location: location,
-       // rating: rating
+        id: event.id,
+        name: event.name,
+        type: event.type,
+        description: event.description,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        photo: event.photo,
+        postTime: event.postTime ,
+        stars: event.stars,
+        votes: event.votes
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
