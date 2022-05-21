@@ -19,7 +19,6 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
 
   //let currentUserUID = firebase.auth().currentUser.uid;
   const [name, setName] = useState("")
-  const [category, setCategory] = useState("")
   //const [creator, setCreator] = useState("")
   const [descripton, setDescrition] = useState("")
   //const [lattitude, setLattitude] = useState("")
@@ -27,6 +26,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0, 1));
+
 
   function ViewEvents(){
       navigation.navigate("EventViewScreen")
@@ -72,7 +72,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
       const event = {
         id: uuid.v4(),
         name: name,
-        type: category,
+        type: displayValue,
         description: descripton,
         startDate: startDate,
         endDate: endDate,
@@ -83,7 +83,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
       }
       console.log('Image Url: ', imageUrl);
       console.log('Event name: ', name);
-      console.log('Event type: ', category);
+      console.log('Event type: ', displayValue);
       console.log('Event descr: ', descripton);
       console.log('Event st date: ', startDate);
       console.log('Event end date: ', endDate);
@@ -210,6 +210,11 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
       return await getDownloadURL(fileRef);
     }
 
+    const renderOption = (title) => (
+      <SelectItem title={title}/>
+    );
+
+    const displayValue = Object.values(EventType)[selectedIndex.row];
 
     const renderHeader = () => (
         <View style={styles.header}>
@@ -281,11 +286,9 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
                 label='Category'
                 placeholder='Default'
                 selectedIndex={selectedIndex}
+                value={displayValue}
                 onSelect={index => setSelectedIndex(index)}>
-                <SelectItem title='Music'/>
-                <SelectItem title='Food'/>
-                <SelectItem title='Hobby'/>
-                <SelectItem title='Other'/>
+                {Object.values(EventType).map(renderOption)}
             </Select>
 
         <Input
