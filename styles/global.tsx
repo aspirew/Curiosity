@@ -9,4 +9,6 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  input: {marginTop: 10, marginLeft: 'auto', marginRight: 'auto', width: '90%'}
+
 });

@@ -10,6 +10,7 @@ type marker = {
   longitude: number
 }
 
+
 export default function MapScreen({ navigation }: DefaultScreenProps) {
   const mapRef = useRef(null);
   const [marker, setMarker] = useState<marker | undefined>(undefined);
@@ -17,6 +18,7 @@ export default function MapScreen({ navigation }: DefaultScreenProps) {
   function onMapPress(e: MapEvent) {
     setMarker(e.nativeEvent.coordinate)
   }
+
 
   return (
     <View style={styles.container}>

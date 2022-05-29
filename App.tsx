@@ -1,12 +1,16 @@
+import 'react-native-gesture-handler';
 import React from 'react'
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import reduxStore from './reduxConfig/store';
-import Navigator from './routes/homeStack'
+import Navigator from './routes/drawer'
 import * as eva from '@eva-design/eva';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 import { RootSiblingParent } from 'react-native-root-siblings';
+
+
+
 
 export default function App() {
 
@@ -18,7 +22,8 @@ export default function App() {
             <RootSiblingParent>
                 <IconRegistry icons={EvaIconsPack}/>
                 <ApplicationProvider {...eva} theme={eva.light}>
-                    <Navigator />
+                <Navigator />
+
                 </ApplicationProvider>
             </RootSiblingParent>
         </PersistGate>
