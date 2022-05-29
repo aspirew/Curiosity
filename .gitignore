@@ -11,6 +11,8 @@ npm-debug.*
 web-build/
 .env
 .idea
+.vs
+.vscode
 package-lock.json
 
 # macOS
