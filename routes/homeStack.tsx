@@ -2,6 +2,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import HomeScreen from '../screens/homeScreen';
 import LoginScreen from '../screens/loginScreen';
 import MapScreen from '../screens/mapScreen';
+import EventCreationScreen from '../screens/eventCreationScreen';
 import Header from '../common/header';
 
 
