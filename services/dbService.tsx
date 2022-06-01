@@ -18,6 +18,7 @@ export class EventDoc {
 
 export async function addEvent(event: Event){
     try {
+        console.log(event);
         const docRef = await addDoc(collection(db, "events"), {
         id: event.id,
         name: event.name,
@@ -26,7 +27,9 @@ export async function addEvent(event: Event){
         startDate: event.startDate,
         endDate: event.endDate,
         photo: event.photo,
-        postTime: event.postTime ,
+        address: event.address,
+        location: event.location,
+        postTime: event.postTime,
         stars: event.stars,
         votes: event.votes
       });

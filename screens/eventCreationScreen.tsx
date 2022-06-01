@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
 import { Alert, Platform, SafeAreaView, ScrollView, TouchableOpacity, View , StyleSheet, ActivityIndicator, StatusBar, Image} from 'react-native';
 import { Button, Calendar, Card, Datepicker, IndexPath, Input, Layout, Select, SelectGroup, SelectItem, Text } from '@ui-kitten/components';
@@ -10,22 +10,57 @@ import { ScreenContainer } from 'react-native-screens';
 import * as ImagePicker from 'expo-image-picker';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
-
+import SelectedLocationComponent from '../components/selectedLocationComponent';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 //import * as firebase from 'firebase';
 import uuid from 'react-native-uuid';
+import MapView, { MapEvent, Marker } from 'react-native-maps';
+import { GeoPoint } from 'firebase/firestore';
+import { assertionError } from '@firebase/util';
+/* @hide */
+import * as Device from 'expo-device';
+/* @end */
+import * as Location from 'expo-location'
 
 export default function EventCreationScreen({ navigation }: DefaultScreenProps) {
+
+  type marker = {
+    latitude: number,
+    longitude: number
+  }
 
   //let currentUserUID = firebase.auth().currentUser.uid;
   const [name, setName] = useState("")
   //const [creator, setCreator] = useState("")
   const [descripton, setDescrition] = useState("")
-  //const [lattitude, setLattitude] = useState("")
-  //const [longitude, setLoggitude] = useState("")
+  const [address, setAddress] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0, 1));
+  const mapRef = useRef(null);
+  const [location, setLocation] = useState<marker | undefined>(undefined);
+
+  useEffect(() => {
+    (async () => {
+      /* @hide */
+      if (Platform.OS === 'android' && !Device.isDevice) {
+        Alert.alert(
+          'Oops, this will not work on Snack in an Android Emulator. Try it on your device!'
+        );
+        return;
+      }
+      /* @end */
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission to access location was denied');
+        return;
+      }
+
+      let location_corrds = await Location.getCurrentPositionAsync({});
+      setLocation(location_corrds.coords);
+      console.log(location);
+    })();
+  }, []);
 
 
   function ViewEvents(){
@@ -68,6 +103,8 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
     const submit = async () => {
 
       try{
+      //TODO: input validation
+      if (location?.latitude == null || location?.latitude == null) throw assertionError("location is null");
       const imageUrl = await uploadImageAsync(uploadedImageUrl);
       const event = {
         id: uuid.v4(),
@@ -78,27 +115,44 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
         endDate: endDate,
         photo: imageUrl,
         postTime: new Date(),
+        address: address,
+        location: new GeoPoint(location.latitude, location.longitude),
         stars: null,
         votes: null
       }
+      
       console.log('Image Url: ', imageUrl);
       console.log('Event name: ', name);
       console.log('Event type: ', displayValue);
       console.log('Event descr: ', descripton);
+      console.log('Event adress: ', address);
       console.log('Event st date: ', startDate);
       console.log('Event end date: ', endDate);
       
       //TODO: input validation
       
       await addEvent(event);
-      navigation.navigate("MapScreen")
+      setName("");
+      setDescrition("");
+      setAddress("");
+      setStartDate("");
+      setEndDate("");
+      setUploadedImageUrl("");
+      setSelectedIndex(new IndexPath(0, 1));
+      setLocation(undefined);
+      navigation.navigate("MapScreen");
       }
       //TODO: error handling
     catch(error: any) {
       return error.message
     }
-
+    
     }
+    
+    function onMapPress(e: MapEvent) {
+      setLocation(e.nativeEvent.coordinate)
+    }
+
   
     const _maybeRenderUploadingOverlay = () => {
         if (uploading) {
@@ -319,6 +373,28 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
             onSelect={setEndDate}
         />
 
+        <Input
+            style={globalStyles.input}
+            label={evaProps => <Text {...evaProps}>Adress</Text>}
+            placeholder='Adress'
+            value={address}
+            onChangeText={(txt: string) => setAddress(txt)}
+        />
+
+      <View style={styles.container}>
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            onPress={(e) => onMapPress(e)}
+          >
+          {
+            location ?
+            <Marker coordinate={location}></Marker>
+            : null
+          }
+          </MapView>
+        </View>
+
       <View 
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {uploadedImageUrl ? null : (
@@ -456,4 +532,11 @@ const styles = StyleSheet.create({
       paddingLeft: 10,
       color: '#333333',
     },
+    map: {
+      padding: 15,
+      borderRadius: 10,
+      marginTop: 20,
+      width: 320,
+      height: 180,
+    }
   });
