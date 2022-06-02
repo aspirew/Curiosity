@@ -1,37 +1,22 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
-import { firebaseLogin, getLoggedInUserUID } from '../services/authService';
+import { firebaseRegister, getLoggedInUserUID } from '../services/authService';
 import {Button, Card, Layout} from '@ui-kitten/components';
 import { Input } from '@ui-kitten/components';
-import { useFocusEffect } from '@react-navigation/native';
 
-function LoginScreen({ navigation }: DefaultScreenProps) {
+function RegisterScreen({ navigation }: DefaultScreenProps) {
 
   const [email, setEmail] = useState("")
+  const [nick, setNick] = useState("")
   const [password, setPassword] = useState("")
 
-  function signIn(){
-    firebaseLogin(email, password).then(async () => {
+  function register(){
+    firebaseRegister(email, password, nick).then(async () => {
       const uid = await getLoggedInUserUID()
       if(uid)
         navigation.navigate("MapScreen")
     })
   }
-
-  function toRegister(){
-    navigation.navigate("RegisterScreen")
-  }
-
-  // https://github.com/react-navigation/react-navigation/issues/8512
-  useFocusEffect(
-    useCallback(() => {
-      getLoggedInUserUID().then(uid => {
-        if(uid)
-          navigation.navigate("MapScreen")
-      })
-      return () => {};
-    }, [])
-  );
 
   return (
       <Layout style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -40,6 +25,12 @@ function LoginScreen({ navigation }: DefaultScreenProps) {
                   placeholder='Email'
                   value={email}
                   onChangeText={(txt: string) => setEmail(txt)}
+                  style={{margin: 10}}
+              />
+              <Input
+                  placeholder='Nick'
+                  value={nick}
+                  onChangeText={(nick: string) => setNick(nick)}
                   style={{margin: 10}}
               />
               <Input
@@ -52,14 +43,7 @@ function LoginScreen({ navigation }: DefaultScreenProps) {
 
               <Button
                   style={{marginTop: 10, marginLeft: 'auto', marginRight: 'auto', width: '50%'}}
-                  onPress={signIn}
-              >
-                  Sign in
-              </Button>
-              <Button
-                  style={{marginTop: 10, marginLeft: 'auto', marginRight: 'auto', width: '50%'}}
-                  onPress={toRegister}
-                  appearance="outline"
+                  onPress={register}
               >
                   Register
               </Button>
@@ -68,4 +52,4 @@ function LoginScreen({ navigation }: DefaultScreenProps) {
   );
 }
 
-export default LoginScreen
+export default RegisterScreen

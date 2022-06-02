@@ -3,13 +3,14 @@ import { auth } from '../firebase/firebase.config';
 import { AsyncStorage } from "react-native";
 import { AsyncStorageData } from "../utils/enums";
 import Toast from 'react-native-root-toast';
+import { addUser } from "./dbService";
 
 type Error = {
     code: number,
     message: string
 }
 
-export async function getLocalToken(): Promise<string | undefined>{
+export async function getLoggedInUserUID(): Promise<string | undefined>{
     const token = await AsyncStorage.getItem(AsyncStorageData.TOKEN)
     return token ? token : undefined
 }
@@ -27,10 +28,10 @@ export function firebaseLogout(){
 export async function firebaseLogin(email: string, pass: string): Promise<string | undefined>{
     try {
         await signInWithEmailAndPassword(auth, email, pass)
-        const token = await auth.currentUser?.getIdToken(true)
-        if(token)
-            setLocalToken(token)
-        return token
+        const uid = auth.currentUser?.uid
+        if(uid)
+            setLocalToken(uid)
+        return uid
     } catch(err: any){
         const error = err as Error
         Toast.show(error.message, {
@@ -41,13 +42,20 @@ export async function firebaseLogin(email: string, pass: string): Promise<string
     }
 }
 
-export async function firebaseRegister(email: string, pass: string): Promise<string | undefined>{
+export async function firebaseRegister(email: string, pass: string, nick: string): Promise<string | undefined>{
     try {
         await createUserWithEmailAndPassword(auth, email, pass)
-        const token = await auth.currentUser?.getIdToken(true)
-        if(token)
-            setLocalToken(token)
-        return token
+        const user = auth.currentUser
+        if(user){
+            addUser({
+                uid: user.uid,
+                mail: email,
+                nick: nick,
+                createdAt: (new Date()).getTime(),
+            })
+            setLocalToken(user.uid)
+        }
+        return user?.uid
     } catch(err: any){
         const error = err as Error
         console.error(error.message)

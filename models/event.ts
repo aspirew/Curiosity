@@ -2,7 +2,7 @@ import { Timestamp } from "firebase/firestore";
 import {EventType} from "./eventType";
 import Photo from "./photo";
 
-export default class Event {
+export default interface Event {
     id: string
     name: string
     type: EventType
