@@ -7,6 +7,7 @@ export default class Event {
     name: string
     type: EventType
     description: string
+    creatorId: string
     startDate: Date
     endDate: Date
     address: string

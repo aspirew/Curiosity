@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
 import { Alert, Platform, SafeAreaView, ScrollView, TouchableOpacity, View , StyleSheet, ActivityIndicator, StatusBar, Image} from 'react-native';
-import { Button, Calendar, Card, Datepicker, IndexPath, Input, Layout, Select, SelectGroup, SelectItem, Text } from '@ui-kitten/components';
+import { Button, Calendar, Card, Datepicker, IndexPath, Input, Layout, Select, SelectGroup, SelectItem, Text, TextProps } from '@ui-kitten/components';
 import { addEvent } from '../services/dbService';
 import Event from '../models/event';
 import { EventType } from '../models/eventType';
@@ -21,6 +21,8 @@ import { assertionError } from '@firebase/util';
 import * as Device from 'expo-device';
 /* @end */
 import * as Location from 'expo-location'
+import { auth } from '../firebase/firebase.config';
+import { RenderProp } from '@ui-kitten/components/devsupport';
 
 export default function EventCreationScreen({ navigation }: DefaultScreenProps) {
 
@@ -108,6 +110,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
       const imageUrl = await uploadImageAsync(uploadedImageUrl);
       const event = {
         id: uuid.v4(),
+        creatorId: auth.currentUser?.uid,
         name: name,
         type: displayValue,
         description: descripton,
@@ -264,7 +267,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
       return await getDownloadURL(fileRef);
     }
 
-    const renderOption = (title) => (
+    const renderOption = (title: React.ReactText | RenderProp<TextProps> | undefined) => (
       <SelectItem title={title}/>
     );
 
@@ -352,7 +355,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
             value={descripton}
             onChangeText={(txt: string) => setDescrition(txt)}
             multiline={true}
-            numberOfLines={7}
+            textStyle={{ minHeight: 64 }}
         />
 
         <Datepicker
@@ -382,6 +385,7 @@ export default function EventCreationScreen({ navigation }: DefaultScreenProps) 
         />
 
       <View style={styles.container}>
+      <Text appearance='hint' style={styles.label}>Mark spot on map</Text>
           <MapView
             ref={mapRef}
             style={styles.map}
@@ -538,5 +542,8 @@ const styles = StyleSheet.create({
       marginTop: 20,
       width: 320,
       height: 180,
+    },
+    label: {
+      marginTop: 20,
     }
   });

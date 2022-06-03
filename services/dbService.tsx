@@ -23,6 +23,7 @@ export async function addEvent(event: Event){
         id: event.id,
         name: event.name,
         type: event.type,
+        creatorId: event.creatorId,
         description: event.description,
         startDate: event.startDate,
         endDate: event.endDate,
