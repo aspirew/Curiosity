@@ -12,7 +12,7 @@ type locationsComponentProps = {
   }
 }
 
-function SelectedLocationComponent({coordinates, navigation}: locationsComponentProps) {
+function addEventComponent({coordinates, navigation}: locationsComponentProps) {
 
   function nav(){
     navigation.navigate("EventCreationScreen")
