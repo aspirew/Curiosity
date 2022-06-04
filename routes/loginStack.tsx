@@ -1,17 +1,15 @@
 import { createStackNavigator } from 'react-navigation-stack';
-import HomeScreen from '../screens/homeScreen';
 import LoginScreen from '../screens/loginScreen';
 import MapScreen from '../screens/mapScreen';
-import EventCreationScreen from '../screens/eventCreationScreen';
 import Header from '../common/header';
-
+import RegisterScreen from '../screens/registerScreen';
 
 const screens = {
-  HomeScreen: {
-    screen: HomeScreen,
-  },
   LoginScreen: {
     screen: LoginScreen,
+  },
+  RegisterScreen: {
+    screen: RegisterScreen,
   },
   MapScreen: {
     screen: MapScreen,
@@ -23,5 +21,5 @@ const screens = {
   }
 };
 
- const HomeStack = createStackNavigator(screens)
- export default HomeStack;
+ const LoginStack = createStackNavigator(screens)
+ export default LoginStack;

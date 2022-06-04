@@ -1,6 +1,6 @@
-export default class User {
-    id: number
-    name: string
-    firstName: string
-    lastName: string
+export default interface User {
+    uid: string
+    mail: string
+    nick: string
+    createdAt: number
 }
