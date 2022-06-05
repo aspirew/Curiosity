@@ -1,5 +1,5 @@
 import { db } from '../firebase/firebase.config';
-import { collection, addDoc, getDocs, QuerySnapshot, DocumentData, where, query, getDocs, getDoc, doc } from "firebase/firestore"; 
+import { collection, addDoc, QuerySnapshot, DocumentData, where, query, getDocs, getDoc, doc } from "firebase/firestore"; 
 import { GeoPoint } from 'firebase/firestore';
 import Event from '../models/event';
 import User from '../models/user';
@@ -33,10 +33,18 @@ export async function getEvents(): Promise<Event[]> {
             const event: Event =  {
                 id: doc.id,
                 name: doc.data().name,
+                photo: doc.data().photo,
                 description: doc.data().description,
                 location: doc.data().location,
                 latitude: doc.data().latitude,
-                longitude: doc.data().longitude
+                longitude: doc.data().longitude,
+                type: doc.data().type,
+                address: doc.data().address,
+                startDate: doc.data().startDate,
+                endDate: doc.data().endDate,
+                postTime: doc.data().postTime,
+                stars: doc.data().stars,
+                votes: doc.data().votes
             }
             arr.push(event)
         })
@@ -51,19 +59,19 @@ export async function getEvent(id: string) {
 
     const event: Event =  {
         id: eventDoc.id,
-        name: eventData.name,
-        type: eventData.type,
-        description: eventData.description,
-        startDate: eventData.startDate,
-        endDate: eventData.endDate,
-        photo: eventData.photo,
-        postTime: eventData.postTime,
-        stars: eventData.stars,
-        votes: eventData.votes,
-        location: eventData.location,
-        latitude: eventData.latitude,
-        longitude: eventData.longitude,
-        address: eventData.address
+        name: eventData?.name,
+        type: eventData?.type,
+        description: eventData?.description,
+        startDate: eventData?.startDate,
+        endDate: eventData?.endDate,
+        photo: eventData?.photo,
+        postTime: eventData?.postTime,
+        stars: eventData?.stars,
+        votes: eventData?.votes,
+        location: eventData?.location,
+        latitude: eventData?.latitude,
+        longitude: eventData?.longitude,
+        address: eventData?.address
     }
 
     return event

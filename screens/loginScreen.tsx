@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
-import { firebaseLogin, getLoggedInUserUID } from '../services/authService';
+import { firebaseLogin, firebaseLogout, getLoggedInUserUID } from '../services/authService';
 import {Button, Card, Layout} from '@ui-kitten/components';
 import { Input } from '@ui-kitten/components';
 import { useFocusEffect } from '@react-navigation/native';
@@ -11,10 +11,10 @@ function LoginScreen({ navigation }: DefaultScreenProps) {
   const [password, setPassword] = useState("")
 
   function signIn(){
-    firebaseLogin(email, password).then(async () => {
-      const uid = await getLoggedInUserUID()
-      if(uid)
-        navigation.navigate("MapScreen")
+
+  firebaseLogin(email, password).then(async res => {
+    if(res)
+      navigation.navigate("MapScreen")
     })
   }
 
@@ -26,8 +26,7 @@ function LoginScreen({ navigation }: DefaultScreenProps) {
   useFocusEffect(
     useCallback(() => {
       getLoggedInUserUID().then(uid => {
-        if(uid)
-          navigation.navigate("MapScreen")
+        firebaseLogout()
       })
       return () => {};
     }, [])
