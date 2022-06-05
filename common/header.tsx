@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-export default function Header({ title, navigation }: any) {
+export default function Header({ title, navigation, hamburger = true }: any) {
 
   const openMenu = () => {
     navigation.openDrawer();
@@ -9,7 +9,10 @@ export default function Header({ title, navigation }: any) {
 
   return (
     <View style={styles.header}>
+      {hamburger ? 
       <MaterialIcons name='menu' size={30} onPress={openMenu} style={styles.icon} />
+      : null
+      }
       <View>
         <Text style={styles.headerText}>{title}</Text>
       </View>

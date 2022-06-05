@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {DefaultScreenProps} from '../common/DefaultScreenProps';
 import MapView, {LatLng, MapEvent, Marker} from 'react-native-maps';
 import {StyleSheet, View} from 'react-native';
@@ -8,6 +8,7 @@ import {Layout} from "@ui-kitten/components";
 import Animated from "react-native-reanimated";
 import Event from "../models/event";
 import EventComponent from "../components/eventComponent";
+import { getLoggedInUserUID } from '../services/authService';
 
 type EventMarker = {
     id: string
@@ -28,15 +29,19 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
             eventDocs.forEach(doc => {
                 events.push(doc)
             })
+            getLoggedInUserUID().then(uid => {
+                if(!uid)
+                    navigation.navigate("LoginScreen")
+            })
             setEvents(events)
             setEventMarkers(prepareEventMarker(eventDocs))
         }
 
-        fetchEvents();
+        fetchEvents().then(() => console.log("hello"));
+        
     }, [events])
 
     function prepareEventMarker(eventDocs: Event[]) {
-        console.log(eventDocs)
         return eventDocs.map(eventDoc => {
             return {
                 id: eventDoc.id,

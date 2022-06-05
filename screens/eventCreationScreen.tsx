@@ -33,11 +33,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
     const [endDate, setEndDate] = useState("")
     const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0, 1));
 
-
-    function ViewEvents() {
-        navigation.navigate("EventViewScreen")
-    }
-
     function Cancel() {
         navigation.goBack()
     }
@@ -367,13 +362,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
                     onPress={Cancel}
                 >
                     Cancel
-                </Button>
-
-                <Button
-                    style={globalStyles.input}
-                    onPress={ViewEvents}
-                >
-                    View Events
                 </Button>
             </ScrollView>
         </Layout>

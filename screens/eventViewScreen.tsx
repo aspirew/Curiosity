@@ -1,45 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, View, Text, StyleSheet, ListRenderItem, SafeAreaView, StatusBar  } from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar, Text, View  } from 'react-native';
 import { getEvents } from '../services/dbService';
 import Event from '../models/event';
+import EventComponent from '../components/eventComponent';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Spinner } from '@ui-kitten/components';
 
 export default function EventViewScreen() {
   const [events, setEvents] = useState<Event[]>([]);
-
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const eventDocs = await getEvents();
+    getEvents().then(eventDocs => {
       eventDocs.forEach(doc => {
-        console.log(doc)
         events.push(doc)
         })
       setEvents(events);
-    }
-    fetchEvents();
+    }).then(() => {
+      setHasLoaded(true)
+    })
   }, [events])
 
-  const Item = ({ name }: any) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{name}</Text>
-    </View>
-  );
+  const items = events.map((val) => {
+      return <EventComponent {...val} />
+  });
 
-    const renderItem = ({ item }: any) => (
-      <Item name={item.name} />
-    );
-
+  if(hasLoaded)
     return (
       <SafeAreaView style={styles.container}>
-        <FlatList
-          data={events}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
+        <ScrollView>
+          {items}
+        </ScrollView>
       </SafeAreaView>
     );
-  }
 
+  return (
+    <View style={{
+      flex: 1, 
+      alignItems: 'center',
+      justifyContent: 'center', 
+    }}>
+      <Spinner></Spinner>
+    </View>
+  );
+}
   const styles = StyleSheet.create({
     container: {
       flex: 1,
