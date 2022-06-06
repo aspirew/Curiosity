@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, GeoPoint } from "firebase/firestore";
 import {EventType} from "./eventType";
 import Photo from "./photo";
 
@@ -7,14 +7,15 @@ export default interface Event {
     name: string
     type: EventType
     description: string
+    creatorId: string
+    startDate: Date
+    endDate: Date
     address: string
-    startDate: Timestamp
-    endDate: Timestamp
+    location: GeoPoint
     photo: Photo
     postTime: Timestamp
     stars: number
     votes: number
-    location: any
     latitude: number
     longitude: number
 

@@ -6,6 +6,7 @@ import User from '../models/user';
 
 export async function addEvent(event: Event) {
     try {
+        console.log(event);
         const docRef = await addDoc(collection(db, "events"), {
             id: event.id,
             name: event.name,
