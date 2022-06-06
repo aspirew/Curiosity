@@ -15,7 +15,7 @@ export default interface Event {
     photo: Photo
     postTime: Timestamp
     stars: number
-    votes: number
+    votes: []
     latitude: number
     longitude: number
 
