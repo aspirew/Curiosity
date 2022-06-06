@@ -23,6 +23,8 @@ import * as Device from 'expo-device';
 import * as Location from 'expo-location'
 import { auth } from '../firebase/firebase.config';
 import { RenderProp } from '@ui-kitten/components/devsupport';
+import MapStack from '../routes/MapStack';
+import { NavigationActions } from 'react-navigation';
 
 export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
@@ -30,6 +32,13 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
   type marker = {
     latitude: number,
     longitude: number
+  }
+
+  type region = {
+        latitude: number,
+        longitude: number,
+        latitudeDelta: number,
+        longitudeDelta: number,
   }
 
   //let currentUserUID = firebase.auth().currentUser.uid;
@@ -42,6 +51,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0, 1));
   const mapRef = useRef(null);
   const [location, setLocation] = useState<marker | undefined>(undefined);
+  const [initialRegion, setinitialRegion] = useState<region | undefined>(undefined);
 
   useEffect(() => {
     (async () => {
@@ -61,13 +71,28 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
       let location_corrds = await Location.getCurrentPositionAsync({});
       setLocation(location_corrds.coords);
+      const reg: region = {
+        latitude: location_corrds.coords.latitude,
+        longitude: location_corrds.coords.longitude,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
+      }
+      setinitialRegion(reg);
       console.log(location);
     })();
   }, []);
 
 
     function Cancel() {
-        navigation.goBack()
+        setName("");
+      setDescrition("");
+      setAddress("");
+      setStartDate("");
+      setEndDate("");
+      setUploadedImageUrl("");
+      setSelectedIndex(new IndexPath(0, 1));
+      setLocation({latitude: initialRegion?.latitude, longitude: initialRegion?.longitude});
+      navigation.navigate("MapScreen");
     }
 
     const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -85,6 +110,10 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         await _takePhoto();
 
     }
+
+    function goToInitialLocation() {
+        
+      }
 
 
     const choosePhotoFromLibrary = async () => {
@@ -391,6 +420,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
           <MapView
             ref={mapRef}
             style={styles.map}
+            showsUserLocation={true}
+            initialRegion={initialRegion}
             onPress={(e) => onMapPress(e)}
           >
           {
@@ -441,13 +472,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             onPress={Cancel}
         >
             Cancel
-        </Button>
-
-        <Button
-            style={globalStyles.input}
-            onPress={ViewEvents}
-        >
-            View Events
         </Button>
         </ScrollView>
 </Layout>
