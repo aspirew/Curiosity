@@ -13,6 +13,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import SelectedLocationComponent from '../components/selectedLocationComponent';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+
 import uuid from 'react-native-uuid';
 import MapView, { MapEvent, Marker } from 'react-native-maps';
 import { GeoPoint } from 'firebase/firestore';
@@ -33,6 +34,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
     latitude: number,
     longitude: number
   }
+
 
   type region = {
         latitude: number,
@@ -93,6 +95,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
       setSelectedIndex(new IndexPath(0, 1));
       setLocation({latitude: initialRegion?.latitude, longitude: initialRegion?.longitude});
       navigation.navigate("MapScreen");
+
     }
 
     const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -110,10 +113,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         await _takePhoto();
 
     }
-
-    function goToInitialLocation() {
-        
-      }
 
 
     const choosePhotoFromLibrary = async () => {
@@ -185,6 +184,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
     }
 
   
+
 
     const _maybeRenderUploadingOverlay = () => {
         if (uploading) {
