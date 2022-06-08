@@ -1,16 +1,17 @@
 import { db } from '../firebase/firebase.config';
-import { collection, addDoc, QuerySnapshot, DocumentData, where, query, getDocs, getDoc, doc } from "firebase/firestore"; 
-import { GeoPoint } from 'firebase/firestore';
+import { collection, addDoc, DocumentData, where, query, getDocs, getDoc, doc, QueryConstraint } from "firebase/firestore"; 
 import Event from '../models/event';
 import User from '../models/user';
+import { getLoggedInUserUID } from './authService';
 
 export async function addEvent(event: Event) {
     try {
-        console.log(event);
+        const loggedInUser = await getLoggedInUserUID()
         const docRef = await addDoc(collection(db, "events"), {
             id: event.id,
             name: event.name,
             type: event.type,
+            createdBy: loggedInUser,
             description: event.description,
             startDate: event.startDate,
             endDate: event.endDate,
@@ -23,11 +24,12 @@ export async function addEvent(event: Event) {
     } catch (e) {
         console.error("Error adding document: ", e);
     }
+    
 }
 
 
-export async function getEvents(): Promise<Event[]> {
-    const events = await getDocs(collection(db, "events"));
+export async function getEvents(queryConstraint: QueryConstraint = where("1", "==", "1")): Promise<Event[]> {
+    const events = await getDocs(query(collection(db, "events"), queryConstraint));
     let arr: Event[] = [];
     if (events.size > 0) {
         events.forEach(doc => {
