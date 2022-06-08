@@ -12,7 +12,7 @@ import {boundingBoxCoordinates} from "../utils/coordinateUtils"
 
 export async function addEvent(event: Event) {
     try {
-        console.log(event);
+        const loggedInUser = await getLoggedInUserUID()
         const docRef = await addDoc(collection(db, "events"), {
             id: event.id,
             name: event.name,
@@ -33,6 +33,7 @@ export async function addEvent(event: Event) {
     } catch (e) {
         console.error("Error adding document: ", e);
     }
+    
 }
 
 
