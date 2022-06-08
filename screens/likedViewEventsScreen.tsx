@@ -13,7 +13,7 @@ export default function LikedViewEventsScreen() {
     })
   }, [])
 
-  const query = where("createdBy", "==", user);
+  const query = where("votes", "array-contains", user);
 
   <EventListWithFilterComponent {...query}> </EventListWithFilterComponent>
 }
