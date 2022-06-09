@@ -147,6 +147,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         postTime: new Date(),
         address: address,
         location: new GeoPoint(location.latitude, location.longitude),
+        latitude: location.latitude.toString(),
+        longitude: location.longitude.toString(),
         stars: null,
         votes: null
       }
