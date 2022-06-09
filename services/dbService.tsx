@@ -2,6 +2,9 @@ import {db} from '../firebase/firebase.config';
 import {addDoc, collection, doc, DocumentData, getDoc, getDocs, query, where, updateDoc, arrayUnion, arrayRemove, setDoc} from "firebase/firestore";
 import Event from '../models/event';
 import User from '../models/user';
+import firebase from "firebase/compat";
+import Filter from "../models/filter";
+import Timestamp = firebase.firestore.Timestamp;
 
 export async function addEvent(event: Event) {
     try {
@@ -25,11 +28,16 @@ export async function addEvent(event: Event) {
 }
 
 
-export async function getEvents(): Promise<Event[]> {
-    const events = await getDocs(collection(db, "events"));
+export async function getEvents(filter: Filter): Promise<Event[]> {
+    // if(filter.isActive) queryConstraints.push(where("endDate", ">=",  Timestamp.now()))
+    // console.log(queryConstraints)
+    //where("endDate", ">=",  Timestamp.now())
+    const events = await getDocs(query(collection(db, "events") ))
+
     let arr: Event[] = [];
     if (events.size > 0) {
         events.forEach(doc => {
+            let isValid = true
             const event: Event =  {
                 id: doc.id,
                 name: doc.data().name,
@@ -46,7 +54,12 @@ export async function getEvents(): Promise<Event[]> {
                 stars: doc.data().stars,
                 votes: doc.data().votes
             }
-            arr.push(event)
+            if(!!filter && filter.likes > 0 && event.votes.length < filter.likes)
+                isValid = false
+            if(filter.isActive && !!event.endDate && event.endDate.toMillis() < Timestamp.now().toMillis())
+                isValid = false
+            if(isValid)
+                arr.push(event)
         })
     }
     return arr;
@@ -109,6 +122,7 @@ export async function getUser(uid: string): Promise<User | undefined> {
 export async function addVote(voterId: string, eventId: string) {
     const eventDoc = doc(db, "events", eventId)
     await updateDoc(eventDoc, {votes: arrayUnion(voterId)})
+    await updateDoc(eventDoc, {"likes": firebase.firestore.FieldValue.increment(1) })
     const userDoc = doc(db, "users", voterId)
     await updateDoc(userDoc, {votes: arrayUnion(eventId)})
 }
@@ -116,6 +130,8 @@ export async function addVote(voterId: string, eventId: string) {
 export async function removeVote(voterId: string, eventId: string) {
     const eventDoc = doc(db, "events", eventId)
     await updateDoc(eventDoc, {votes: arrayRemove(voterId)})
+    await updateDoc(eventDoc, {"likes": firebase.firestore.FieldValue.increment(-1) })
+
     const userDoc = doc(db, "users", voterId)
     await updateDoc(userDoc, {votes: arrayRemove(eventId)})
 }

@@ -8,8 +8,8 @@ export default interface Event {
     type: EventType
     description: string
     creatorId: string
-    startDate: Date
-    endDate: Date
+    startDate: Timestamp
+    endDate: Timestamp
     address: string
     location: GeoPoint
     photo: Photo

@@ -6,7 +6,7 @@ import {faHourglassEnd, faHourglassStart, faLocationDot, faThumbsUp, faStar} fro
 import moment from "moment";
 import Event from "../models/event";
 import {getLoggedInUserUID} from "../services/authService";
-import {addVote, getEvents, removeVote} from "../services/dbService";
+import {addVote, removeVote} from "../services/dbService";
 import {Button} from "@ui-kitten/components";
 
 function EventComponent(event: Event) {

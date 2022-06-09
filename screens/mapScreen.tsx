@@ -9,6 +9,8 @@ import Animated from "react-native-reanimated";
 import Event from "../models/event";
 import EventComponent from "../components/eventComponent";
 import { getLoggedInUserUID } from '../services/authService';
+import FilterComponent from "../components/filterComponent";
+import Filter from "../models/filter";
 
 type EventMarker = {
     id: string
@@ -22,10 +24,11 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
     const [events, setEvents] = useState<Event[]>([]);
     const [eventMarkers, setEventMarkers] = useState<EventMarker[]>([]);
     const [pickedEvent, setPickedEvent] = useState<Event | undefined>(undefined);
+    const [filter, setFilter] = useState<Filter>( new Filter());
 
     useEffect(() => {
         const fetchEvents = async () => {
-            const eventDocs = await getEvents();
+            const eventDocs = await getEvents(filter);
             eventDocs.forEach(doc => {
                 events.push(doc)
             })
@@ -37,8 +40,8 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
             setEventMarkers(prepareEventMarker(eventDocs))
         }
 
-        fetchEvents().then(() => console.log("hello"));
-        
+        fetchEvents();
+
     }, [events])
 
     function prepareEventMarker(eventDocs: Event[]) {
@@ -66,11 +69,25 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
         <EventComponent {...pickedEvent}/>
     );
 
+    async function handleFilter(newFilter) {
+        setFilter(newFilter)
+        const eventDocs = await getEvents(newFilter);
+        eventDocs.forEach(doc => {
+            events.push(doc)
+        })
+
+        setEvents(events)
+        setEventMarkers(prepareEventMarker(eventDocs))
+    }
+
     const bs = React.createRef();
     const fall = new Animated.Value(1);
 
     return (
-        <Layout style={{flex: 1}}>
+        <Layout style={{flex: 1, position: "relative"}}>
+            <FilterComponent
+                handleFilter={handleFilter}
+            />
             <View style={styles.container}>
 
                 <MapView
