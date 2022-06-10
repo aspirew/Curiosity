@@ -5,6 +5,10 @@ import User from '../models/user';
 import firebase from "firebase/compat";
 import Filter from "../models/filter";
 import Timestamp = firebase.firestore.Timestamp;
+import * as Location from "expo-location";
+import GeoPoint = firebase.firestore.GeoPoint;
+import {Alert} from "react-native";
+import {boundingBoxCoordinates} from "../utils/coordinateUtils"
 
 export async function addEvent(event: Event) {
     try {
@@ -29,10 +33,26 @@ export async function addEvent(event: Event) {
 
 
 export async function getEvents(filter: Filter): Promise<Event[]> {
-    // if(filter.isActive) queryConstraints.push(where("endDate", ">=",  Timestamp.now()))
-    // console.log(queryConstraints)
-    //where("endDate", ">=",  Timestamp.now())
-    const events = await getDocs(query(collection(db, "events") ))
+    let events = []
+
+    if(!!filter.distance && parseInt(filter.distance) > 0) {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission to access location was denied');
+            return;
+        }
+        const distance = parseInt(filter.distance)
+        let location_corrds = await Location.getCurrentPositionAsync({});
+        const box = boundingBoxCoordinates(location_corrds.coords, distance);
+
+        const lesserGeopoint = new GeoPoint(box.swCorner.latitude, box.swCorner.longitude);
+        const greaterGeopoint = new GeoPoint(box.neCorner.latitude, box.neCorner.longitude);
+
+        events = await getDocs(query(collection(db, "events"), where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)))
+    }
+    else {
+        events = await getDocs(query(collection(db, "events") ))
+    }
 
     let arr: Event[] = [];
     if (events.size > 0) {
