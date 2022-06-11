@@ -17,11 +17,15 @@ export async function addEvent(event: Event) {
             id: event.id,
             name: event.name,
             type: event.type,
+            creatorId: event.creatorId,
             description: event.description,
             startDate: event.startDate,
             endDate: event.endDate,
             photo: event.photo,
             postTime: event.postTime,
+            location: event.location,
+            latitude: event.latitude,
+            longitude: event.longitude,
             stars: event.stars,
             votes: event.votes
         });
