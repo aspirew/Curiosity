@@ -4,18 +4,15 @@ import { DefaultScreenProps } from '../common/DefaultScreenProps';
 import { Alert, Platform, SafeAreaView, ScrollView, TouchableOpacity, View , StyleSheet, ActivityIndicator, StatusBar, Image} from 'react-native';
 import { Button, Calendar, Card, Datepicker, IndexPath, Input, Layout, Select, SelectGroup, SelectItem, Text, TextProps } from '@ui-kitten/components';
 import { addEvent } from '../services/dbService';
-import Event from '../models/event';
 import { EventType } from '../models/eventType';
 import { globalStyles } from '../styles/global';
-import { ScreenContainer } from 'react-native-screens';
 import * as ImagePicker from 'expo-image-picker';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
-import SelectedLocationComponent from '../components/selectedLocationComponent';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 import uuid from 'react-native-uuid';
-import MapView, { MapEvent, Marker } from 'react-native-maps';
+import MapView, { MapEvent, MapViewProps, Marker } from 'react-native-maps';
 import { GeoPoint } from 'firebase/firestore';
 import { assertionError } from '@firebase/util';
 /* @hide */
@@ -24,8 +21,6 @@ import * as Device from 'expo-device';
 import * as Location from 'expo-location'
 import { auth } from '../firebase/firebase.config';
 import { RenderProp } from '@ui-kitten/components/devsupport';
-import MapStack from '../routes/MapStack';
-import { NavigationActions } from 'react-navigation';
 
 export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
@@ -43,13 +38,13 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         longitudeDelta: number,
   }
 
-  //let currentUserUID = firebase.auth().currentUser.uid;
+  const now = new Date();
+
   const [name, setName] = useState("")
-  //const [creator, setCreator] = useState("")
   const [descripton, setDescrition] = useState("")
   const [address, setAddress] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
+  const [startDate, setStartDate] = useState(new Date(Date.now()))
+  const [endDate, setEndDate] = useState(new Date(Date.now()))
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0, 1));
   const mapRef = useRef(null);
   const [location, setLocation] = useState<marker | undefined>(undefined);
@@ -84,13 +79,44 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
     })();
   }, []);
 
+    function validateInput(input: string, alerts: boolean = false, inputName: string) : boolean {
+        if(input == ""){
+            if(alerts) Alert.alert(inputName + " cannot be empty");
+            return false;
+        }
+        if(input.length < 3){
+            if(alerts)Alert.alert(inputName + " cannot be less than 3 characters");
+            return false;
+        }
+        return true;
+    }
+
+
+    function CheckCurrentEventIsValid() : boolean {
+        if(
+            validateInput(name, true, "Name") && 
+            startDate != null &&
+            endDate != null && 
+            validateInput(address, true, "Address") &&
+            location != null &&
+            location.latitude != null &&
+            location.longitude != null) return true
+        else {
+            if (location == null ||
+            location.latitude == null ||
+            location.longitude == null)
+            Alert.alert("Event must have set location");
+            return false;
+        }
+    }
+
 
     function Cancel() {
         setName("");
       setDescrition("");
       setAddress("");
-      setStartDate("");
-      setEndDate("");
+      setStartDate(new Date(Date.now()));
+      setEndDate(new Date(Date.now()));
       setUploadedImageUrl("");
       setSelectedIndex(new IndexPath(0, 1));
       setLocation({latitude: initialRegion?.latitude, longitude: initialRegion?.longitude});
@@ -132,9 +158,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
 
       try{
-      //TODO: input validation
-      if (location?.latitude == null || location?.latitude == null) throw assertionError("location is null");
-      const imageUrl = await uploadImageAsync(uploadedImageUrl);
+      if (CheckCurrentEventIsValid()){
+      const imageUrl = uploadedImageUrl ? await uploadImageAsync(uploadedImageUrl) : "";
       const event = {
         id: uuid.v4(),
         creatorId: auth.currentUser?.uid,
@@ -161,19 +186,19 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
       console.log('Event st date: ', startDate);
       console.log('Event end date: ', endDate);
       
-      //TODO: input validation
       
       await addEvent(event);
       setName("");
       setDescrition("");
       setAddress("");
-      setStartDate("");
-      setEndDate("");
+      setStartDate(new Date(Date.now()));
+      setEndDate(new Date(Date.now()));
       setUploadedImageUrl("");
       setSelectedIndex(new IndexPath(0, 1));
       setLocation(undefined);
       navigation.navigate("MapScreen");
       }
+    }
       //TODO: error handling
     catch(error: any) {
       return error.message
@@ -341,6 +366,16 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         </View>
       );
 
+    async function setMyLocation(){
+        await Location.getCurrentPositionAsync({}).then((location_corrds) => {;
+        setLocation(location_corrds.coords)}).then(() => {
+        mapRef.current.animateToRegion({
+            latitude: location?.latitude,
+            longitude: location?.longitude,
+            latitudeDelta: 0.003,
+            longitudeDelta: 0.003,
+          })});
+    }
       
 
 
@@ -369,6 +404,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             placeholder='Event name'
             value={name}
             onChangeText={(txt: string) => setName(txt)}
+            status={validateInput(name) ? "basic" : "danger"}
+            maxLength={25}
         />
 
         <Select
@@ -389,6 +426,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             onChangeText={(txt: string) => setDescrition(txt)}
             multiline={true}
             textStyle={{ minHeight: 64 }}
+            maxLength={300}
         />
 
         <Datepicker
@@ -398,6 +436,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             size="medium"
             date={startDate}
             onSelect={setStartDate}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
         />
 
         <Datepicker
@@ -407,6 +447,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             size="medium"
             date={endDate}
             onSelect={setEndDate}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
         />
 
         <Input
@@ -415,6 +457,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             placeholder='Adress'
             value={address}
             onChangeText={(txt: string) => setAddress(txt)}
+            status={validateInput(address) ? "basic" : "danger"}
+            maxLength={30}
         />
 
       <View style={styles.container}>
@@ -432,20 +476,16 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             : null
           }
           </MapView>
+        <Button style={styles.setLocationButton} onPress={setMyLocation}>Set My location for event</Button>
         </View>
 
       <View 
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {uploadedImageUrl ? null : (
-          <Text
-            style={{
-              fontSize: 20,
-              marginBottom: 20,
-              textAlign: 'center',
-              marginHorizontal: 15,
-            }}>
-            Image placeholder
-          </Text>
+          <Image
+          source={require('../assets/image.png')}
+            >
+          </Image>
         )}
         {_maybeRenderImage()}
         {_maybeRenderUploadingOverlay()}
@@ -573,5 +613,8 @@ const styles = StyleSheet.create({
     },
     label: {
       marginTop: 20,
+    },
+    setLocationButton: {
+        margin: 5,
     }
   });

@@ -55,7 +55,8 @@
     "redux": "^4.1.2",
     "redux-persist": "^6.0.0",
     "redux-persist-expo-securestore": "^2.0.0",
-    "rn-nodeify": "^10.3.0"
+    "rn-nodeify": "^10.3.0",
+    "@react-native-community/datetimepicker": "4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
