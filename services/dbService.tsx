@@ -28,6 +28,12 @@ export async function getEvents(filter: Filter): Promise<Event[] | undefined> {
     let queryConstraints: Array<QueryConstraint> = []
     const usr = await getLoggedInUserUID()
 
+    if(filter.onlyLikedByMe)
+        queryConstraints.push(where("votes", "array-contains", usr))
+    
+    if(filter.onlyMyEvents)
+        queryConstraints.push(where("creatorId", "==", usr))
+
     if(!!filter.distance && parseInt(filter.distance) > 0) {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -35,20 +41,22 @@ export async function getEvents(filter: Filter): Promise<Event[] | undefined> {
             return;
         }
         const distance = parseInt(filter.distance)
-        let location_corrds = await Location.getCurrentPositionAsync({});
-        const box = boundingBoxCoordinates(location_corrds.coords, distance);
 
+        let location_corrds = await Location.getCurrentPositionAsync({});
+
+        const box = boundingBoxCoordinates(location_corrds.coords, distance);
         const lesserGeopoint = new GeoPoint(box.swCorner.latitude, box.swCorner.longitude);
         const greaterGeopoint = new GeoPoint(box.neCorner.latitude, box.neCorner.longitude);
 
         queryConstraints.concat([where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)])
-        events = await getDocs(query(collection(db, "events"), where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)))
     }
+    
+    console.log(queryConstraints)
 
-    events = await getDocs(query(collection(db, "events")))
-    // events = await getDocs(query(collection(db, "events"), where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)))
+    events = await getDocs(query(collection(db, "events"), ...queryConstraints))
 
     let arr: Event[] = [];
+    // console.log(events)
     if (events.size > 0) {
         events.forEach(doc => {
             let isValid = true
@@ -67,7 +75,7 @@ export async function getEvents(filter: Filter): Promise<Event[] | undefined> {
                 endDate: doc.data().endDate,
                 postTime: doc.data().postTime,
                 stars: doc.data().stars,
-                votes: doc.data().votes
+                votes: doc.data().votes || []
             }
             if(!!filter && filter.likes > 0 && event.votes.length < filter.likes)
                 isValid = false

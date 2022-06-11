@@ -20,7 +20,7 @@ export default function EventListWithFilterComponent(props) {
     filter.likes = passedFilter.likes
     filter.onlyLikedByMe = passedFilter.onlyLikedByMe
     filter.onlyMyEvents = passedFilter.onlyMyEvents
-
+    setFilter(filter)
     getEvents(filter).then(eventDocs => {
       eventDocs?.forEach(doc => {
         events.push(doc)
@@ -28,24 +28,24 @@ export default function EventListWithFilterComponent(props) {
     }).then(() => {
       setHasLoaded(true)
     })
-  }, [events])
+  }, [])
 
   async function handleFilter(newFilter: Filter) {
     newFilter.onlyLikedByMe = filter.onlyLikedByMe
     newFilter.onlyMyEvents = filter.onlyMyEvents
     setFilter(newFilter)
     const eventDocs = await getEvents(newFilter);
-    setEvents([])
+    const newEvents: Event[] = []
     eventDocs?.forEach(doc => {
-        events.push(doc)
+      newEvents.push(doc)
     })
-    setEvents(events)
-
+    setEvents(newEvents)
+    console.log(events)
   } 
 
   if(hasLoaded)
     return (
-      <View>
+      <View style= {{height: "100%"}}>
         <FilterComponent handleFilter={handleFilter}/>
         <EventListComponent events={events}></EventListComponent>
       </View>
