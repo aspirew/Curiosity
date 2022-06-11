@@ -51,6 +51,7 @@ function FilterComponent(props) {
                     label={"Ilość like'ów"}
                     value={likes}
                     onChangeText={(likesVal) => setLikes(likesVal)}
+                    keyboardType={"number-pad"}
                 />
                 <Input
                     style={{
@@ -59,6 +60,7 @@ function FilterComponent(props) {
                     label={"Jak daleko od ciebie?"}
                     value={distance}
                     onChangeText={(distanceVal) => setDistance(distanceVal)}
+                    keyboardType={"number-pad"}
                 />
                 <Text
                     style={{
