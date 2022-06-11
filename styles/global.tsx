@@ -7,7 +7,7 @@ export const globalStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 20
   },
   input: {marginTop: 10, marginLeft: 'auto', marginRight: 'auto', width: '90%'}
 

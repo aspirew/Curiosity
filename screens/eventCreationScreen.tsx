@@ -382,7 +382,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
   return (
       
     <Layout style={globalStyles.container}>
-        <ScrollView style={globalStyles.container}>
+        <ScrollView>
         <BottomSheet
         ref={bs}
         snapPoints={[330, -5]}
@@ -526,7 +526,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#fff'
     },
     commandButton: {
         padding: 15,
@@ -605,6 +605,7 @@ const styles = StyleSheet.create({
         color: '#333333',
     },
     map: {
+        marginLeft: 20,
       padding: 15,
       borderRadius: 10,
       marginTop: 20,

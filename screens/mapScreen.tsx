@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {DefaultScreenProps} from '../common/DefaultScreenProps';
 import MapView, {LatLng, MapEvent, Marker} from 'react-native-maps';
-import {StyleSheet, View} from 'react-native';
+import {LogBox, StyleSheet, View} from 'react-native';
 import {getEvent, getEvents} from "../services/dbService";
 import BottomSheet from "reanimated-bottom-sheet";
 import {Layout} from "@ui-kitten/components";
@@ -32,30 +32,30 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
             eventDocs.forEach(doc => {
                 events.push(doc)
             })
-            getLoggedInUserUID().then(uid => {
-                if(!uid)
-                    navigation.navigate("LoginScreen")
-            })
+            // getLoggedInUserUID().then(uid => {
+            //     if(!uid)
+            //         navigation.navigate("LoginScreen")
+            // })
             setEvents(events)
             setEventMarkers(prepareEventMarker(eventDocs))
         }
-
-        fetchEvents();
+        fetchEvents()
 
     }, [events])
 
     function prepareEventMarker(eventDocs: Event[]) {
-        return eventDocs.map(eventDoc => {
-            return {
-                id: eventDoc.id,
-                title: eventDoc.name,
-                // description: eventDoc.description,
-                coordinate: {
-                    latitude: !!eventDoc.latitude ? eventDoc.latitude : eventDoc.location.latitude,
-                    longitude: !!eventDoc.longitude ? eventDoc.longitude : eventDoc.location.longitude,
+        const docs = eventDocs.filter(doc => doc.location).map(eventDoc => { 
+                return {
+                    id: eventDoc.id,
+                    title: eventDoc.name,
+                    // description: eventDoc.description,
+                    coordinate: {
+                        latitude: eventDoc?.location?.latitude,
+                        longitude: eventDoc?.location?.longitude
+                    }
                 }
-            }
-        })
+            })
+        return docs
     }
 
     async function clickOnMarker(e: MapEvent) {
@@ -70,14 +70,14 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
     );
 
     async function handleFilter(newFilter) {
+        LogBox.ignoreAllLogs();
         setFilter(newFilter)
         const eventDocs = await getEvents(newFilter);
         eventDocs.forEach(doc => {
             events.push(doc)
         })
-
         setEvents(events)
-        setEventMarkers(prepareEventMarker(eventDocs))
+        setEventMarkers(prepareEventMarker(events))
     }
 
     const bs = React.createRef();

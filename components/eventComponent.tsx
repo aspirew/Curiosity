@@ -37,21 +37,17 @@ function EventComponent(event: Event) {
     }
 
     const likeEvent = async () => {
-
-        addVote(userId, event.id).then(() => {
-            if(!votes || votes == null)
-                setVotes([])
-            votes.push(userId)
-            setUserFollowedEvent(true)
-        })
+        setUserFollowedEvent(true)
+        if(!votes || votes == null)
+            setVotes([])
+        votes.push(userId)
+        addVote(userId, event.id)
     }
 
     const unlikeEvent = async () => {
-        removeVote(userId, event.id).then(() => {
-            setVotes(votes.filter(id => userId !== id))
-            setUserFollowedEvent(false)
-        })
-
+        setUserFollowedEvent(false)
+        setVotes(votes.filter(id => userId !== id))
+        removeVote(userId, event.id)
     }
 
     return (
