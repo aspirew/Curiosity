@@ -1,18 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DefaultScreenProps } from '../common/DefaultScreenProps';
-import { firebaseLogout, getLoggedInUserUID } from '../services/authService';
+import { getLoggedInUserUID } from '../services/authService';
 import { LogBox, SafeAreaView, Text, View } from 'react-native';
 import { Button, Card, Layout, Spinner } from '@ui-kitten/components';
 import { getUser } from '../services/dbService';
 import User from '../models/user';
+import Filter from '../models/filter';
 
 export default function ProfileScreen({ navigation }: DefaultScreenProps) {
 
   const [user, setUser] = useState<User>()
   const [date, setDate] = useState<string>(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`)
 
-  function goToEventsScreen(){
-    navigation.navigate("EventViewScreen")
+  function goToMyEventsScreen(){
+    const eventScreenFilter = new Filter();
+    eventScreenFilter.onlyMyEvents = true;
+    navigation.navigate("EventViewScreen", {filter: eventScreenFilter})
+  }
+
+  function goToLikedEventsScreen(){
+    const eventScreenFilter = new Filter();
+    eventScreenFilter.onlyLikedByMe = true;
+    navigation.navigate("EventViewScreen", {filter: eventScreenFilter})
   }
 
   async function getCurrentUser(){
@@ -47,7 +56,8 @@ export default function ProfileScreen({ navigation }: DefaultScreenProps) {
               <Text style={{margin: 10}}>Mail: { user?.mail }</Text>
               <Text style={{margin: 10}}>Nick: { user?.nick }</Text>
               <Text style={{margin: 10}}>Created on: { date }</Text>
-              <Button onPress={goToEventsScreen} size="small" style={{margin: 10}} appearance="outline">Browse events</Button>
+              <Button onPress={goToMyEventsScreen} size="small" style={{margin: 10}} appearance="outline">Browse my events</Button>
+              <Button onPress={goToLikedEventsScreen} size="small" style={{margin: 10}} appearance="outline">Browse liked events</Button>
           </Card>
         </Layout>
       </SafeAreaView>

@@ -43,9 +43,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         longitudeDelta: number,
   }
 
-  //let currentUserUID = firebase.auth().currentUser.uid;
   const [name, setName] = useState("")
-  //const [creator, setCreator] = useState("")
   const [descripton, setDescrition] = useState("")
   const [address, setAddress] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -80,7 +78,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         longitudeDelta: 0.003,
       }
       setinitialRegion(reg);
-      console.log(location);
     })();
   }, []);
 
@@ -128,13 +125,13 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
     };
 
-    const submit = async () => {
+    async function submit() {
 
-
-      try{
+    try{
       //TODO: input validation
       if (location?.latitude == null || location?.latitude == null) throw assertionError("location is null");
       const imageUrl = await uploadImageAsync(uploadedImageUrl);
+
       const event = {
         id: uuid.v4(),
         creatorId: auth.currentUser?.uid,
@@ -151,16 +148,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         votes: null
       }
       
-      console.log('Image Url: ', imageUrl);
-      console.log('Event name: ', name);
-      console.log('Event type: ', displayValue);
-      console.log('Event descr: ', descripton);
-      console.log('Event adress: ', address);
-      console.log('Event st date: ', startDate);
-      console.log('Event end date: ', endDate);
-      
       //TODO: input validation
-      
       await addEvent(event);
       setName("");
       setDescrition("");
@@ -183,8 +171,9 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
       setLocation(e.nativeEvent.coordinate)
     }
 
-  
-
+    function isFilled() {
+        return name != "" && !descripton && !address && !startDate && !endDate;
+    }
 
     const _maybeRenderUploadingOverlay = () => {
         if (uploading) {
@@ -248,9 +237,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             allowsEditing: true,
             aspect: [4, 3],
         });
-
-        console.log({pickerResult});
-
         _handleImagePicked(pickerResult);
     };
 
@@ -263,7 +249,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
                 setUploadedImageUrl(uploadUrl);
             }
         } catch (e) {
-            console.log(e);
             alert("Upload failed, sorry :(");
         } finally {
             setUploading(false);
@@ -279,7 +264,6 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
                 resolve(xhr.response);
             };
             xhr.onerror = function (e) {
-                console.log(e);
                 reject(new TypeError("Network request failed"));
             };
             xhr.responseType = "blob";
@@ -463,6 +447,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
         <Button
             style={globalStyles.input}
             onPress={submit}
+            disabled={isFilled()}
         >
             Submit
         </Button>

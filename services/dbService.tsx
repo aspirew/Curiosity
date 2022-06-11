@@ -1,5 +1,5 @@
 import {db} from '../firebase/firebase.config';
-import {addDoc, collection, doc, DocumentData, getDoc, getDocs, query, where, updateDoc, arrayUnion, arrayRemove, setDoc} from "firebase/firestore";
+import {addDoc, collection, doc, DocumentData, getDoc, getDocs, query, where, updateDoc, arrayUnion, arrayRemove, setDoc, QueryConstraint, Query} from "firebase/firestore";
 import Event from '../models/event';
 import User from '../models/user';
 import firebase from "firebase/compat";
@@ -9,23 +9,13 @@ import * as Location from "expo-location";
 import GeoPoint = firebase.firestore.GeoPoint;
 import {Alert} from "react-native";
 import {boundingBoxCoordinates} from "../utils/coordinateUtils"
+import { getLoggedInUserUID } from './authService';
 
 export async function addEvent(event: Event) {
     try {
         const loggedInUser = await getLoggedInUserUID()
-        const docRef = await addDoc(collection(db, "events"), {
-            id: event.id,
-            name: event.name,
-            type: event.type,
-            createdBy: loggedInUser,
-            description: event.description,
-            startDate: event.startDate,
-            endDate: event.endDate,
-            photo: event.photo,
-            postTime: event.postTime,
-            stars: event.stars,
-            votes: event.votes
-        });
+        event.creatorId = loggedInUser!
+        const docRef = await addDoc(collection(db, "events"), event);
         console.log("Document written with ID: ", docRef.id);
     } catch (e) {
         console.error("Error adding document: ", e);
@@ -33,9 +23,10 @@ export async function addEvent(event: Event) {
     
 }
 
-
-export async function getEvents(filter: Filter): Promise<Event[]> {
-    let events = []
+export async function getEvents(filter: Filter): Promise<Event[] | undefined> {
+    let events: Array<Event> = []
+    let queryConstraints: Array<QueryConstraint> = []
+    const usr = await getLoggedInUserUID()
 
     if(!!filter.distance && parseInt(filter.distance) > 0) {
         let { status } = await Location.requestForegroundPermissionsAsync();
@@ -50,11 +41,12 @@ export async function getEvents(filter: Filter): Promise<Event[]> {
         const lesserGeopoint = new GeoPoint(box.swCorner.latitude, box.swCorner.longitude);
         const greaterGeopoint = new GeoPoint(box.neCorner.latitude, box.neCorner.longitude);
 
+        queryConstraints.concat([where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)])
         events = await getDocs(query(collection(db, "events"), where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)))
     }
-    else {
-        events = await getDocs(query(collection(db, "events") ))
-    }
+
+    events = await getDocs(query(collection(db, "events")))
+    // events = await getDocs(query(collection(db, "events"), where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)))
 
     let arr: Event[] = [];
     if (events.size > 0) {
@@ -68,6 +60,7 @@ export async function getEvents(filter: Filter): Promise<Event[]> {
                 location: doc.data().location,
                 latitude: doc.data().latitude,
                 longitude: doc.data().longitude,
+                creatorId: doc.data().creatorID,
                 type: doc.data().type,
                 address: doc.data().address,
                 startDate: doc.data().startDate,
@@ -106,7 +99,8 @@ export async function getEvent(id: string) {
         location: eventData?.location,
         latitude: eventData?.latitude,
         longitude: eventData?.longitude,
-        address: eventData?.address
+        address: eventData?.address,
+        creatorId: eventData?.creatorId
     }
 
     return event

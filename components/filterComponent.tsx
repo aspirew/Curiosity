@@ -4,9 +4,8 @@ import {withNavigation} from "react-navigation";
 import {useState} from "react";
 import Filter from "../models/filter";
 
-function FilterComponent(props) {
+function FilterComponent(props: {handleFilter: (newFilter: Filter) => Promise<void>}) {
     const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false)
-
     const [distance, setDistance] = useState(0)
     const [likes, setLikes] = useState(0)
     const [isActive, setIsActive] = useState(true)
@@ -96,8 +95,8 @@ function FilterComponent(props) {
         <View
             style={{
             position: "absolute",
-            left: 10,
-            top: 10,
+            right: 10,
+            bottom: 10,
             zIndex: 999
         }}>
             <Button
