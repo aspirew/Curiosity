@@ -40,7 +40,6 @@ export default function EventListWithFilterComponent(props) {
       newEvents.push(doc)
     })
     setEvents(newEvents)
-    console.log(events)
   } 
 
   if(hasLoaded)

@@ -43,12 +43,15 @@ export async function getEvents(filter: Filter): Promise<Event[] | undefined> {
         const distance = parseInt(filter.distance)
 
         let location_corrds = await Location.getCurrentPositionAsync({});
+        console.log("?????")
 
         const box = boundingBoxCoordinates(location_corrds.coords, distance);
         const lesserGeopoint = new GeoPoint(box.swCorner.latitude, box.swCorner.longitude);
         const greaterGeopoint = new GeoPoint(box.neCorner.latitude, box.neCorner.longitude);
 
-        queryConstraints.concat([where("location", ">", lesserGeopoint), where("location", "<", greaterGeopoint)])
+        console.log("im pushin")
+        queryConstraints.push(where("location", ">", lesserGeopoint))
+        queryConstraints.push(where("location", "<", greaterGeopoint))
     }
     
     console.log(queryConstraints)
