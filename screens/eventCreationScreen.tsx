@@ -26,6 +26,7 @@ import { auth } from '../firebase/firebase.config';
 import { RenderProp } from '@ui-kitten/components/devsupport';
 import MapStack from '../routes/MapStack';
 import { NavigationActions } from 'react-navigation';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
@@ -47,7 +48,9 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
   const [descripton, setDescrition] = useState("")
   const [address, setAddress] = useState("")
   const [startDate, setStartDate] = useState("")
+  const [startDateModal, setstartDateModal] = useState(false)
   const [endDate, setEndDate] = useState("")
+  const [endDateModal, setendDateModal] = useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0, 1));
   const mapRef = useRef(null);
   const [location, setLocation] = useState<marker | undefined>(undefined);
@@ -100,6 +103,7 @@ function CheckCurrentEventIsValid() : boolean {
         validateInput(name, true, "Name") && 
         startDate != null &&
         endDate != null && 
+        new Date(startDate) <= new Date(endDate) &&
         validateInput(address, true, "Address") &&
         location != null &&
         location.latitude != null &&
@@ -107,8 +111,26 @@ function CheckCurrentEventIsValid() : boolean {
     else {
         if (location == null ||
         location.latitude == null ||
-        location.longitude == null)
-        Alert.alert("Event must have set location");
+        location.longitude == null){
+        Alert.alert("Event must have a set location");
+        return false;
+        }
+        if(startDate == ""){
+            Alert.alert("Event must have a set start date");
+            return false;
+        }
+        if(endDate == ""){
+            Alert.alert("Event must have a set end date");
+            return false;
+        }
+        if(endDate == ""){
+            Alert.alert("Event must have a set end date");
+            return false;
+        }
+        if(new Date(startDate) > new Date(endDate)){
+            Alert.alert("Start date cannot be later than end date");
+            return false;
+        }
         return false;
     }
 }
@@ -205,7 +227,7 @@ function CheckCurrentEventIsValid() : boolean {
     }
 
     function isFilled() {
-        return name != "" && !descripton && !address && !startDate && !endDate;
+        return !name && !descripton && !address && startDate != "" && endDate != "";
     }
 
     const _maybeRenderUploadingOverlay = () => {
@@ -312,6 +334,18 @@ function CheckCurrentEventIsValid() : boolean {
 
         return await getDownloadURL(fileRef);
     }
+
+    const onStartTimeChange = (event: any, selectedDate: any) => {
+        const currentDate = selectedDate;
+        setstartDateModal(false);
+        setStartDate(currentDate);
+      };
+
+      const onEndTimeChange = (event: any, selectedDate: any) => {
+        const currentDate = selectedDate;
+        setendDateModal(false);
+        setEndDate(currentDate);
+      };
 
 
     const renderOption = (title: React.ReactText | RenderProp<TextProps> | undefined) => (
@@ -426,9 +460,22 @@ function CheckCurrentEventIsValid() : boolean {
             size="medium"
             date={startDate}
             onSelect={setStartDate}
-            min={new Date(now.getFullYear(), now.getMonth(), now.getDate()).toString()}
-            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate()).toString()}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
+            status={startDate != "" ? "basic" : "danger"}
         />
+
+        <Text style={styles.dateText}>Event Start Date: {startDate ? new Date(startDate).toLocaleString() : "Please pick a start date"}</Text>
+        <Button style={styles.dateButton} onPress={() => setstartDateModal(true)}>Set start time</Button>
+            {startDateModal && (
+                <DateTimePicker
+                testID="startdateTimePicker"
+                value={startDate}
+                mode={"time"}
+                is24Hour={true}
+                onChange={onStartTimeChange}
+                />
+            )}
 
         <Datepicker
             style={globalStyles.input}
@@ -437,9 +484,22 @@ function CheckCurrentEventIsValid() : boolean {
             size="medium"
             date={endDate}
             onSelect={setEndDate}
-            min={new Date(now.getFullYear(), now.getMonth(), now.getDate()).toString()}
-            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate()).toString()}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
+            status={endDate != "" ? "basic" : "danger"}
         />
+
+        <Text style={styles.dateText}>Event End Date: {endDate ? new Date(endDate).toLocaleString() : "Please pick a end date"}</Text>
+        <Button style={styles.dateButton} onPress={() => setendDateModal(true)}>Set end time</Button>
+            {endDateModal && (
+                <DateTimePicker
+                testID="enddateTimePicker"
+                value={endDate}
+                mode={"time"}
+                is24Hour={true}
+                onChange={onEndTimeChange}
+                />
+            )}
 
         <Input
             style={globalStyles.input}
@@ -607,5 +667,14 @@ const styles = StyleSheet.create({
     },
     setLocationButton: {
         margin: 5,
+    },
+    dateText: {
+        margin: 5,
+        marginLeft: 20,
+    },
+    dateButton: {
+        margin: 5,
+        width: "40%",
+        marginLeft: 20,
     }
   });
