@@ -393,7 +393,7 @@ function CheckCurrentEventIsValid() : boolean {
             placeholder='Event name'
             value={name}
             onChangeText={(txt: string) => setName(txt)}
-            status={validateInput(name) ? "basic" : "danger"}
+            status={validateInput(name, false, "") ? "basic" : "danger"}
             maxLength={25}
         />
 
@@ -426,8 +426,8 @@ function CheckCurrentEventIsValid() : boolean {
             size="medium"
             date={startDate}
             onSelect={setStartDate}
-            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
-            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate()).toString()}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate()).toString()}
         />
 
         <Datepicker
@@ -437,8 +437,8 @@ function CheckCurrentEventIsValid() : boolean {
             size="medium"
             date={endDate}
             onSelect={setEndDate}
-            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
-            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate()).toString()}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate()).toString()}
         />
 
         <Input
@@ -446,6 +446,7 @@ function CheckCurrentEventIsValid() : boolean {
             label={evaProps => <Text {...evaProps}>Adress</Text>}
             placeholder='Adress'
             value={address}
+            status={validateInput(address, false, "") ? "basic" : "danger"}
             onChangeText={(txt: string) => setAddress(txt)}
         />
 
@@ -464,6 +465,7 @@ function CheckCurrentEventIsValid() : boolean {
             : null
           }
           </MapView>
+          <Button style={styles.setLocationButton} onPress={setMyLocation}>Set My location for event</Button>
         </View>
 
       <View 
