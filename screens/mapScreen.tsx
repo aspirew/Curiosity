@@ -45,6 +45,7 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
 
     function prepareEventMarker(eventDocs: Event[]) {
         const docs = eventDocs.filter(doc => doc.location).map(eventDoc => { 
+            console.log(eventDoc)
                 return {
                     id: eventDoc.id,
                     title: eventDoc.name,
@@ -70,14 +71,14 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
     );
 
     async function handleFilter(newFilter) {
-        LogBox.ignoreAllLogs();
         setFilter(newFilter)
+        const newEvents: Event[] = []
         const eventDocs = await getEvents(newFilter);
         eventDocs.forEach(doc => {
-            events.push(doc)
+            newEvents.push(doc)
         })
-        setEvents(events)
-        setEventMarkers(prepareEventMarker(events))
+        setEvents(newEvents)
+        setEventMarkers(prepareEventMarker(eventDocs))
     }
 
     const bs = React.createRef();
@@ -96,7 +97,7 @@ export default function MapScreen({navigation}: DefaultScreenProps) {
                 >
                     {eventMarkers.map((marker, index) => (
                         <Marker
-                            key={marker.id}
+                            key={index}
                             identifier={marker.id}
                             coordinate={marker.coordinate}
                             title={marker.title}

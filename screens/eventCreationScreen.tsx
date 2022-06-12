@@ -52,6 +52,7 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
   const mapRef = useRef(null);
   const [location, setLocation] = useState<marker | undefined>(undefined);
   const [initialRegion, setinitialRegion] = useState<region | undefined>(undefined);
+  const now = new Date()
 
   useEffect(() => {
     (async () => {
@@ -81,6 +82,36 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
     })();
   }, []);
 
+  function validateInput(input: string, alerts: boolean = false, inputName: string) : boolean {
+    if(input == ""){
+        if(alerts) Alert.alert(inputName + " cannot be empty");
+        return false;
+    }
+    if(input.length < 3){
+        if(alerts)Alert.alert(inputName + " cannot be less than 3 characters");
+        return false;
+    }
+    return true;
+}
+
+
+function CheckCurrentEventIsValid() : boolean {
+    if(
+        validateInput(name, true, "Name") && 
+        startDate != null &&
+        endDate != null && 
+        validateInput(address, true, "Address") &&
+        location != null &&
+        location.latitude != null &&
+        location.longitude != null) return true
+    else {
+        if (location == null ||
+        location.latitude == null ||
+        location.longitude == null)
+        Alert.alert("Event must have set location");
+        return false;
+    }
+}
 
     function Cancel() {
         setName("");
@@ -129,8 +160,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
 
     try{
       //TODO: input validation
-      if (location?.latitude == null || location?.latitude == null) throw assertionError("location is null");
-      const imageUrl = await uploadImageAsync(uploadedImageUrl);
+      if (CheckCurrentEventIsValid()){
+        const imageUrl = uploadedImageUrl ? await uploadImageAsync(uploadedImageUrl) : "";
 
       const event = {
         id: uuid.v4(),
@@ -160,10 +191,12 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
       setLocation(undefined);
       navigation.navigate("MapScreen");
       }
+    }
       //TODO: error handling
     catch(error: any) {
       return error.message
     }
+    
     
     }
     
@@ -324,12 +357,21 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
       );
 
       
-
+      async function setMyLocation(){
+        await Location.getCurrentPositionAsync({}).then((location_corrds) => {;
+        setLocation(location_corrds.coords)}).then(() => {
+        mapRef.current.animateToRegion({
+            latitude: location?.latitude,
+            longitude: location?.longitude,
+            latitudeDelta: 0.003,
+            longitudeDelta: 0.003,
+          })});
+    }
 
   return (
       
     <Layout style={globalStyles.container}>
-        <ScrollView style={globalStyles.container}>
+        <ScrollView>
         <BottomSheet
         ref={bs}
         snapPoints={[330, -5]}
@@ -351,6 +393,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             placeholder='Event name'
             value={name}
             onChangeText={(txt: string) => setName(txt)}
+            status={validateInput(name) ? "basic" : "danger"}
+            maxLength={25}
         />
 
         <Select
@@ -371,6 +415,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             onChangeText={(txt: string) => setDescrition(txt)}
             multiline={true}
             textStyle={{ minHeight: 64 }}
+            maxLength={300}
+
         />
 
         <Datepicker
@@ -380,6 +426,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             size="medium"
             date={startDate}
             onSelect={setStartDate}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
         />
 
         <Datepicker
@@ -389,6 +437,8 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
             size="medium"
             date={endDate}
             onSelect={setEndDate}
+            min={new Date(now.getFullYear(), now.getMonth(), now.getDate())}
+            max={new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())}
         />
 
         <Input
@@ -419,15 +469,10 @@ export default function EventCreationScreen({navigation}: DefaultScreenProps) {
       <View 
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {uploadedImageUrl ? null : (
-          <Text
-            style={{
-              fontSize: 20,
-              marginBottom: 20,
-              textAlign: 'center',
-              marginHorizontal: 15,
-            }}>
-            Image placeholder
-          </Text>
+          <Image
+          source={require('../assets/image.png')}
+            >
+          </Image>
         )}
         {_maybeRenderImage()}
         {_maybeRenderUploadingOverlay()}
@@ -551,10 +596,14 @@ const styles = StyleSheet.create({
       padding: 15,
       borderRadius: 10,
       marginTop: 20,
+      marginLeft: 20,
       width: 320,
       height: 180,
     },
     label: {
       marginTop: 20,
+    },
+    setLocationButton: {
+        margin: 5,
     }
   });
